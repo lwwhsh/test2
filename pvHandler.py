@@ -9,5 +9,6 @@ def monitorM3():
     while True:
         print epics.caget('mobiis:m3.RBV')
         time.sleep(1)
+        print epics.caget('G:BEAMCURRENT')
 
 monitorM3()
