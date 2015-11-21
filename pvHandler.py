@@ -49,6 +49,7 @@ class MakePointoForScan():
             time.sleep(1)
             print '+++++ Not Changed +++'
 
+
 if __name__ == '__main__':
     runScan = MakePointoForScan()
     runScan.putTable()
