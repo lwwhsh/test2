@@ -7,12 +7,6 @@ import epics
 from scan import *
 # from ui import Ui_Form
 
-def monitorM3():
-    while True:
-        print epics.caget('mobiis:m3.RBV')
-        time.sleep(1)
-        print epics.caget('G:BEAMCURRENT')
-
 
 class threadScanData(QtCore.QThread):
     # def __init__(self, send_signal):
@@ -72,14 +66,14 @@ class threadScanData(QtCore.QThread):
                 self.last_log_fetched = self.last_logged
                 print '----- CHANGED----- %d' % (self.last_logged)
 
-            # time.sleep(1)
-            # print '+++++ Not Changed +++'
+            time.sleep(0.025)
+
+        print self.scan_handler.getData(self.scan_id)
 
 
 class MakePointoForScan():
     def __init__(self):
         self.id = None
-
         self.client = ScanClient('localhost', port=4810)
 
         print self.client
@@ -93,7 +87,7 @@ class MakePointoForScan():
                       completion=True,
                       readback='m2RBV') ]
 
-        print 'CMDS : ', self.cmds
+        print 'CMDS : %s' % (self.cmds)
 
         self.id = self.client.submit(self.cmds, 'py')
 
@@ -113,11 +107,11 @@ class MakePointoForScan():
             if self.last_log_fetched != self.last_logged:
                 self.last_log_fetched = self.last_logged
 
-            time.sleep(1)
+            time.sleep(1.0)
 
 
 if __name__ == '__main__':
     runScan = MakePointoForScan()
     runScan.putTable()
-    time.sleep(1)
+    # for local test.
     runScan.monitorScans()

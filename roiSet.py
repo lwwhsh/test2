@@ -129,7 +129,10 @@ class roiWidget(QtGui.QWidget):
 
         if reply == QtGui.QMessageBox.Yes:
             try:
-                epics.caput(e0Name, self.ui.doubleE0.value())
+                ## epics.caput(e0Name, self.ui.doubleE0.value())
+                self.runScan = MakePointoForScan()
+                self.runScan.putTable()
+
             except:
                 pass
         else:
