@@ -11,4 +11,5 @@ def monitorM3():
         time.sleep(1)
         print epics.caget('G:BEAMCURRENT')
 
-monitorM3()
+if __name__ == '__main__':
+    monitorM3()
