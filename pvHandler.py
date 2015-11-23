@@ -9,11 +9,12 @@ from scan import *
 
 
 class threadScanData(QtCore.QThread):
-    # def __init__(self, send_signal):
-    def __init__(self):
+    #commSignal = QtCore.pyqtSignal(str)
+
+    def __init__(self, send_signal):
         super(threadScanData, self).__init__()
+        self.send_signal = send_signal
         self.scan_handler = None
-        #self.send_signal = send_signal
 
         # 변수 초기화
         self.state = False
@@ -66,13 +67,24 @@ class threadScanData(QtCore.QThread):
                 self.last_log_fetched = self.last_logged
                 print '----- CHANGED----- %d' % (self.last_logged)
 
+                progressPercent = self.scan_handler.scanInfo(self.scan_id).percentage()
+
+                print 'Progress percentage : %s' % (progressPercent)
+
+                #self.commSignal.emit(str(progressPercent))
+                self.send_signal.emit(progressPercent)
+
             time.sleep(0.025)
 
         print self.scan_handler.getData(self.scan_id)
 
 
-class MakePointoForScan():
-    def __init__(self):
+class MakePointForScan(QtGui.QWidget):
+    commSignal = QtCore.pyqtSignal(int)
+
+    def __init__(self, parent):
+        super(MakePointForScan, self).__init__(parent) # __init__(parent)가 아니면 메인에서 본 위젯의 시그널을 받을 수 없음.
+
         self.id = None
         self.client = ScanClient('localhost', port=4810)
 
@@ -91,7 +103,7 @@ class MakePointoForScan():
 
         self.id = self.client.submit(self.cmds, 'py')
 
-        self.monThread = threadScanData()
+        self.monThread = threadScanData(self.commSignal)
         self.monThread.set_conf(self.id, 1.0, self.client, 1.0)
         self.monThread.start()
 
@@ -111,7 +123,7 @@ class MakePointoForScan():
 
 
 if __name__ == '__main__':
-    runScan = MakePointoForScan()
+    runScan = MakePointForScan()
     runScan.putTable()
     # for local test.
     runScan.monitorScans()

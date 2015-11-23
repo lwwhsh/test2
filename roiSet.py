@@ -4,7 +4,6 @@ import sys, time
 from PyQt4 import QtGui
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-
 from roi_ui import Ui_roiWidget
 from pvHandler import *
 import epics
@@ -27,9 +26,12 @@ class roiWidget(QtGui.QWidget):
 
         # define signal for GUI user operation----------------------------------------
         self.makeElementList()
-        self.connect(self.ui.elements, SIGNAL("currentIndexChanged(int)"), self.onEdgeChoice)
-        self.connect(self.ui.doubleE0, SIGNAL("valueChanged(double)"), self.updateElementList)
-        self.connect(self.ui.btnE0, SIGNAL("clicked()"), self.moveE0)
+        self.connect(self.ui.elements, SIGNAL("currentIndexChanged(int)"),
+                     self.onEdgeChoice)
+        self.connect(self.ui.doubleE0, SIGNAL("valueChanged(double)"),
+                     self.updateElementList)
+        self.connect(self.ui.btnE0, SIGNAL("clicked()"),
+                     self.moveE0)
 
         # region calculation----------------------------------------------------------
         self.reg_settings = []
@@ -67,8 +69,10 @@ class roiWidget(QtGui.QWidget):
             self.ui.doubleE0.setValue(epics.caget(e0Name+'.RBV', timeout=10))
         except:
             pass
+
         self.updateElementList()
 
+        self.ui.progressBar.setValue(15)
 
     def makeElementList(self):
         con = sqlite3.connect("xrayref.db")
@@ -114,11 +118,11 @@ class roiWidget(QtGui.QWidget):
 
     def regionChanged(self, value):
         for r in self.reg_settings[:value+2]:
-            for i,a in enumerate(r):
+            for i, a in enumerate(r):
                 a.setEnabled(True)
 
         for r in self.reg_settings[value+2:]:
-            for i,a in enumerate(r):
+            for i, a in enumerate(r):
                 a.setEnabled(False)
 
     def moveE0(self):
@@ -130,13 +134,19 @@ class roiWidget(QtGui.QWidget):
         if reply == QtGui.QMessageBox.Yes:
             try:
                 ## epics.caput(e0Name, self.ui.doubleE0.value())
-                self.runScan = MakePointoForScan()
-                self.runScan.putTable()
+                self.runScan = MakePointForScan(self.ui.progressBar)
 
+                self.runScan.commSignal.connect(self.showData)
+
+                self.runScan.putTable()
             except:
                 pass
         else:
             pass
+
+    def showData(self, data):
+        self.ui.progressBar.setValue(data)
+        print 'ProgressBar DATA : %d' %(data)
 
 
 # this module run
