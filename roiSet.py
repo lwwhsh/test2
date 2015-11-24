@@ -72,7 +72,7 @@ class roiWidget(QtGui.QWidget):
 
         self.updateElementList()
 
-        self.ui.progressBar.setValue(15)
+        self.ui.progressBar.setValue(0.0)
 
     def makeElementList(self):
         con = sqlite3.connect("xrayref.db")
@@ -138,15 +138,17 @@ class roiWidget(QtGui.QWidget):
 
                 self.runScan.commSignal.connect(self.showData)
 
-                self.runScan.putTable()
-            except:
-                pass
+                self.runScan.putTable(self.ui.doubleE0,
+                                      self.reg_settings,
+                                      self.ui.selectRegion)
+            except Exception as e:
+                #pass
+                print e
         else:
             pass
 
     def showData(self, data):
         self.ui.progressBar.setValue(data)
-        print 'ProgressBar DATA : %d' %(data)
 
 
 # this module run
@@ -156,4 +158,3 @@ if '__main__' == __name__:
     test.show()
     
     sys.exit(application.exec_())
-

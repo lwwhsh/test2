@@ -2,15 +2,21 @@
 __author__ = 'root'
 
 import sys, time
+import numpy as np
+from math import sqrt
 from PyQt4 import QtGui, QtCore
 import epics
 from scan import *
-# from ui import Ui_Form
 
+XAFS_K2E = 3.809980849311092
+
+def etok(energy):
+    return np.sqrt(energy/XAFS_K2E)
+
+def ktoe(k):
+    return k*k*XAFS_K2E
 
 class threadScanData(QtCore.QThread):
-    #commSignal = QtCore.pyqtSignal(str)
-
     def __init__(self, send_signal):
         super(threadScanData, self).__init__()
         self.send_signal = send_signal
@@ -40,8 +46,6 @@ class threadScanData(QtCore.QThread):
             print self.scan_id
         else:
             self.scan_handler.send_data(self.scan_id)
-            #self.send_signal.emit(self.scan_id, self.location)
-            print 'aa'
 
     def stop(self):
         self.state = False
@@ -51,32 +55,28 @@ class threadScanData(QtCore.QThread):
 
     def run(self):
         self.state = True
-
         self.last_log_fetched = None
         self.last_logged = None
 
-        # while not self.client.scanInfo(self.scan_id).isDone():
         while not self.scan_handler.scanInfo(self.scan_id).isDone():
             if self.state is False:
                 break
 
-            # self.last_logged = self.client.lastSerial(self.scan_id)
             self.last_logged = self.scan_handler.lastSerial(self.scan_id)
 
             if self.last_log_fetched != self.last_logged:
                 self.last_log_fetched = self.last_logged
-                print '----- CHANGED----- %d' % (self.last_logged)
+                self.send_signal.emit(self.scan_handler.scanInfo(self.scan_id).percentage())
 
-                progressPercent = self.scan_handler.scanInfo(self.scan_id).percentage()
+            time.sleep(0.1)
 
-                print 'Progress percentage : %s' % (progressPercent)
-
-                #self.commSignal.emit(str(progressPercent))
-                self.send_signal.emit(progressPercent)
-
-            time.sleep(0.025)
+        try:
+            self.send_signal.emit(self.scan_handler.scanInfo(self.scan_id).percentage())
+        except:
+            pass
 
         print self.scan_handler.getData(self.scan_id)
+        # self.scan_handler.clear()
 
 
 class MakePointForScan(QtGui.QWidget):
@@ -88,9 +88,9 @@ class MakePointForScan(QtGui.QWidget):
         self.id = None
         self.client = ScanClient('localhost', port=4810)
 
-        print self.client
-
-    def putTable(self):
+    def putTable(self, doubleE0, reg_setting, selectRegion):
+        """
+        Generate SCAN commands. see Kay kasemir documents(www.github.com)
         self.cmds = [ Comment("Example"),
                       Loop('m2', 0, 10, 1,
                             [ Set('cnt', 1),
@@ -98,10 +98,57 @@ class MakePointForScan(QtGui.QWidget):
                               Log(devices=['m2RBV', 'beam', 'io']) ],
                       completion=True,
                       readback='m2RBV') ]
+        """
 
-        print 'CMDS : %s' % (self.cmds)
+        self.e0Ui = doubleE0
+        self.region = reg_setting
+        self.regionSelectUi = selectRegion
 
-        self.id = self.client.submit(self.cmds, 'py')
+        countStartForm = Set('cnt', 1)
+        countWaitForm = Set('cnt', 0)
+        logForm = Log(devices=['m2RBV', 'beam', 'io'])
+
+        # User comment.
+        cmds = [ Comment("Set") ]
+
+        for i in range(self.regionSelectUi.currentIndex()+2):
+            li = list(self.region[i])
+
+            # check k or eV and if eV step
+            if i < 3 or (i > 2 and li[4].currentIndex() is 0):
+                # 1st set expose time
+                cmds.append(Set('tp', li[3].value()))
+
+                dd1 = Loop('m2', li[0].value(), li[1].value(), li[2].value(),
+                           [ Delay(0.01),
+                             Set('cnt', 1),
+                             Wait('cnt', 0),
+                             Log(devices=['m2RBV', 'beam', 'io'])
+                           ],
+                           completion=True, readback='m2RBV')
+
+                cmds.append(dd1)
+
+            # add k step. Matt Newvill equation!
+            else:
+                npts = 1 + int(0.1 + abs(etok(li[1].value()) - etok(li[0].value())) / li[2].value())
+                en_arr = list(np.linspace(etok(li[0].value()), etok(li[1].value()), npts))
+                # k to eV
+                ev_arr = [ktoe(e) for e in en_arr]
+                # 1st set expose time
+                cmds.append(Set('tp', li[3].value()))
+
+                for i in ev_arr:
+                    cmds.append(Set('m2', i, completion=True, readback='m2RBV', tolerance=0.0001))
+                    cmds.append(Delay(0.01))
+                    cmds.append(Set('cnt', 1))
+                    cmds.append(Wait('cnt', 0))
+                    cmds.append(Log(devices=['m2RBV', 'beam', 'io']))
+
+        print '=====CMDS : %s' % (cmds)
+
+        # set file name to comment in the scan description.
+        self.id = self.client.submit(cmds, 'py')
 
         self.monThread = threadScanData(self.commSignal)
         self.monThread.set_conf(self.id, 1.0, self.client, 1.0)
