@@ -11,7 +11,7 @@ import sqlite3
 import scan
 
 
-e0Name     = 'mobiis:m4'
+e0Name     = 'mobiis:m2'
 BEAM       = 'G:BEAMCURRENT'
 COUNT_NAME = 'HFXAFS:scaler1'
 
@@ -32,6 +32,10 @@ class roiWidget(QtGui.QWidget):
                      self.updateElementList)
         self.connect(self.ui.btnE0, SIGNAL("clicked()"),
                      self.moveE0)
+        self.connect(self.ui.btnStartScan, SIGNAL("clicked()"),
+                     self.startScan)
+        self.connect(self.ui.btnStopScan, SIGNAL("clicked()"),
+                     self.stopScan)
 
         # region calculation----------------------------------------------------------
         self.reg_settings = []
@@ -125,6 +129,32 @@ class roiWidget(QtGui.QWidget):
             for i, a in enumerate(r):
                 a.setEnabled(False)
 
+    def startScan(self):
+        try:
+            self.runScan = MakePointForScan(self.ui.progressBar)
+
+            self.runScan.commSignal.connect(self.showData)
+
+            self.runScan.putTable(self.ui.doubleE0,
+                                  self.reg_settings,
+                                  self.ui.selectRegion)
+        except Exception as e:
+            #pass
+            print e
+
+    def stopScan(self):
+        try:
+            self.runScan = MakePointForScan(self.ui.progressBar)
+
+            self.runScan.commSignal.connect(self.showData)
+
+            self.runScan.putTable(self.ui.doubleE0,
+                                  self.reg_settings,
+                                  self.ui.selectRegion)
+        except Exception as e:
+            #pass
+            print e
+
     def moveE0(self):
         quit_msg = """Are you sure you want move to e0?
                    You need energy calibration after move e0!!"""
@@ -133,14 +163,7 @@ class roiWidget(QtGui.QWidget):
 
         if reply == QtGui.QMessageBox.Yes:
             try:
-                ## epics.caput(e0Name, self.ui.doubleE0.value())
-                self.runScan = MakePointForScan(self.ui.progressBar)
-
-                self.runScan.commSignal.connect(self.showData)
-
-                self.runScan.putTable(self.ui.doubleE0,
-                                      self.reg_settings,
-                                      self.ui.selectRegion)
+                epics.caput(e0Name, self.ui.doubleE0.value(), wait=True)
             except Exception as e:
                 #pass
                 print e

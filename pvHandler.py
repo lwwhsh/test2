@@ -31,11 +31,12 @@ class threadScanData(QtCore.QThread):
     def __del__(self):
         self.state = False
 
-    def set_conf(self, scan_id, interval, scan_handler, location):
+    def set_conf(self, scan_id, interval, scan_handler, location, e0=7112.0):
         self.scan_id = scan_id
         self.interval = interval
         self.scan_handler = scan_handler
         self.location = location
+        self.e0 = e0
 
     def send_data(self):
         """ 입력받은 데이터가 없을 때 """
@@ -75,9 +76,16 @@ class threadScanData(QtCore.QThread):
         except:
             pass
 
+        # stop and return to e0.
+        epics.caput('mobiis:m2.STOP', 1.0)
+        time.sleep(1.0)
+        epics.caput('mobiis:m2.VAL', self.e0, wait=True, timeout=120)
+
+        # for test.
+        self.stop()
+
         print self.scan_handler.getData(self.scan_id)
         # self.scan_handler.clear()
-
 
 class MakePointForScan(QtGui.QWidget):
     commSignal = QtCore.pyqtSignal(int)
@@ -103,10 +111,7 @@ class MakePointForScan(QtGui.QWidget):
         self.e0Ui = doubleE0
         self.region = reg_setting
         self.regionSelectUi = selectRegion
-
-        countStartForm = Set('cnt', 1)
-        countWaitForm = Set('cnt', 0)
-        logForm = Log(devices=['m2RBV', 'beam', 'io'])
+        self.e0Value = self.e0Ui.value()
 
         # User comment.
         cmds = [ Comment("Set") ]
@@ -119,7 +124,8 @@ class MakePointForScan(QtGui.QWidget):
                 # 1st set expose time
                 cmds.append(Set('tp', li[3].value()))
 
-                dd1 = Loop('m2', li[0].value(), li[1].value(), li[2].value(),
+                dd1 = Loop('m2', li[0].value()+self.e0Value,
+                           li[1].value()+self.e0Value, li[2].value(),
                            [ Delay(0.01),
                              Set('cnt', 1),
                              Wait('cnt', 0),
@@ -133,8 +139,10 @@ class MakePointForScan(QtGui.QWidget):
             else:
                 npts = 1 + int(0.1 + abs(etok(li[1].value()) - etok(li[0].value())) / li[2].value())
                 en_arr = list(np.linspace(etok(li[0].value()), etok(li[1].value()), npts))
-                # k to eV
-                ev_arr = [ktoe(e) for e in en_arr]
+
+                # k to eV and add E0 Value
+                ev_arr = [ self.e0Value + ktoe(e) for e in en_arr]
+
                 # 1st set expose time
                 cmds.append(Set('tp', li[3].value()))
 
@@ -145,13 +153,13 @@ class MakePointForScan(QtGui.QWidget):
                     cmds.append(Wait('cnt', 0))
                     cmds.append(Log(devices=['m2RBV', 'beam', 'io']))
 
-        print '=====CMDS : %s' % (cmds)
+        # print '=====CMDS : %s' % (cmds)
 
         # set file name to comment in the scan description.
         self.id = self.client.submit(cmds, 'py')
 
         self.monThread = threadScanData(self.commSignal)
-        self.monThread.set_conf(self.id, 1.0, self.client, 1.0)
+        self.monThread.set_conf(self.id, 1.0, self.client, 1.0, self.e0Value)
         self.monThread.start()
 
         print 'SCAN ID : %d' % (self.id)
