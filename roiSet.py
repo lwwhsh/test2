@@ -78,6 +78,18 @@ class roiWidget(QtGui.QWidget):
 
         self.ui.progressBar.setValue(0.0)
 
+        # Try connect to SCAN SERVER!
+        try:
+            self.runScan = MakePointForScan(self.ui.progressBar)
+            self.runScan.commSignal.connect(self.showData)
+        except Exception as e:
+            #pass
+            QMessageBox.warning(self, "Oops SCAN server",
+                                " Scan server not connected please program restart ",
+                                QMessageBox.Ok)
+            print e
+
+
     def makeElementList(self):
         con = sqlite3.connect("xrayref.db")
         cursor = con.cursor()
@@ -131,9 +143,9 @@ class roiWidget(QtGui.QWidget):
 
     def startScan(self):
         try:
-            self.runScan = MakePointForScan(self.ui.progressBar)
+            # self.runScan = MakePointForScan(self.ui.progressBar)
 
-            self.runScan.commSignal.connect(self.showData)
+            # self.runScan.commSignal.connect(self.showData)
 
             self.runScan.putTable(self.ui.doubleE0,
                                   self.reg_settings,
@@ -144,13 +156,7 @@ class roiWidget(QtGui.QWidget):
 
     def stopScan(self):
         try:
-            self.runScan = MakePointForScan(self.ui.progressBar)
-
-            self.runScan.commSignal.connect(self.showData)
-
-            self.runScan.putTable(self.ui.doubleE0,
-                                  self.reg_settings,
-                                  self.ui.selectRegion)
+            self.runScan.monThread.stop()
         except Exception as e:
             #pass
             print e
