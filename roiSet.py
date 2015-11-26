@@ -154,6 +154,10 @@ class roiWidget(QtGui.QWidget):
             #pass
             print e
 
+        self.monThread = threadScanData(self.commSignal)
+        self.monThread.set_conf(self.id, 1.0, self.client, 1.0, self.e0Value)
+        self.monThread.start()
+
     def stopScan(self):
         try:
             self.runScan.monThread.stop()

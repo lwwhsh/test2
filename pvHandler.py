@@ -16,9 +16,15 @@ def etok(energy):
 def ktoe(k):
     return k*k*XAFS_K2E
 
-class threadScanData(QtCore.QThread):
+class threadScanData(QtCore.QThread, MakePointForScan):
+    commSignal = QtCore.pyqtSignal(int)
+
     def __init__(self, send_signal):
-        super(threadScanData, self).__init__()
+        ## super(threadScanData, self).__init__()
+        super(serialReceiveThread, self).__init__(parent) # __init__(parent)가 아니면 메인에서 본 위젯의 시그널을 받을 수 없음.
+
+        MakePointForScan.__init__(self)
+
         self.send_signal = send_signal
         self.scan_handler = None
 
@@ -87,11 +93,13 @@ class threadScanData(QtCore.QThread):
         print self.scan_handler.getData(self.scan_id)
         # self.scan_handler.clear()
 
-class MakePointForScan(QtGui.QWidget):
-    commSignal = QtCore.pyqtSignal(int)
+##class MakePointForScan(QtGui.QWidget):
+class MakePointForScan():
+    ## commSignal = QtCore.pyqtSignal(int)
 
-    def __init__(self, parent):
-        super(MakePointForScan, self).__init__(parent) # __init__(parent)가 아니면 메인에서 본 위젯의 시그널을 받을 수 없음.
+    ## def __init__(self, parent):
+    def __init__(self):
+        ## super(MakePointForScan, self).__init__(parent) # __init__(parent)가 아니면 메인에서 본 위젯의 시그널을 받을 수 없음.
 
         self.id = None
         self.client = ScanClient('localhost', port=4810)
@@ -113,7 +121,7 @@ class MakePointForScan(QtGui.QWidget):
         self.regionSelectUi = selectRegion
         self.e0Value = self.e0Ui.value()
 
-        # User comment.
+        # TODO: User comment.
         cmds = [ Comment("Set") ]
 
         for i in range(self.regionSelectUi.currentIndex()+2):
@@ -153,14 +161,12 @@ class MakePointForScan(QtGui.QWidget):
                     cmds.append(Wait('cnt', 0))
                     cmds.append(Log(devices=['m2RBV', 'beam', 'io']))
 
-        # print '=====CMDS : %s' % (cmds)
-
         # set file name to comment in the scan description.
         self.id = self.client.submit(cmds, 'py')
 
-        self.monThread = threadScanData(self.commSignal)
-        self.monThread.set_conf(self.id, 1.0, self.client, 1.0, self.e0Value)
-        self.monThread.start()
+        ##self.monThread = threadScanData(self.commSignal)
+        ##self.monThread.set_conf(self.id, 1.0, self.client, 1.0, self.e0Value)
+        ##self.monThread.start()
 
         print 'SCAN ID : %d' % (self.id)
 
