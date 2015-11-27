@@ -22,7 +22,8 @@ class ThreadScanData(QtCore.QThread, MakePointForScan):
         self.state = False
 
     def set_conf(self, e0=7112.0):
-        self.e0 = e0
+        # for test
+        self.e0Value = e0
 
     def send_data(self):
         """ 입력받은 데이터가 없을 때 """
@@ -66,10 +67,10 @@ class ThreadScanData(QtCore.QThread, MakePointForScan):
         except:
             pass
 
-        # stop and return to e0.
+        # stop and return to e0Value.
         epics.caput('mobiis:m2.STOP', 1.0)
         time.sleep(1.0)
-        epics.caput('mobiis:m2.VAL', self.e0, wait=True, timeout=120)
+        epics.caput('mobiis:m2.VAL', self.e0Value, wait=True, timeout=120)
 
         #print self.client.getData(self.scan_id)
         # self.scan_handler.clear()
