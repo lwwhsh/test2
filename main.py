@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 
-import sys, time
-from PyQt4 import QtGui, QtCore
+import sys
+from PyQt4 import QtGui
 from main_ui import Ui_MainWindow
-from monitorSet import monitorWidget
-from roiSet import roiWidget
+from monitorSet import MonitorWidget
+from roiSet import RoiWidget
 
 
-class mainForm(QtGui.QMainWindow):
-    def __init__(self, parent = None):
+class MainForm(QtGui.QMainWindow):
+    def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.monWidget = monitorWidget(self.ui.widgetMonitor)
-        self.roiWidget = roiWidget(self.ui.widgetROI)
+        self.monWidget = MonitorWidget(self.ui.widgetMonitor)
+        self.roiWidget = RoiWidget(self.ui.widgetROI)
 
     # 프로그램을 닫으려 할때
     def closeEvent(self, event):
@@ -30,6 +30,6 @@ class mainForm(QtGui.QMainWindow):
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
-    myapp = mainForm()
+    myapp = MainForm()
     myapp.show()
     sys.exit(app.exec_())

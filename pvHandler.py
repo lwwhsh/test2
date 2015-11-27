@@ -1,10 +1,7 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
-import sys, time
+import time
 import numpy as np
-from math import sqrt
-from PyQt4 import QtGui, QtCore
-import epics
 from scan import *
 
 

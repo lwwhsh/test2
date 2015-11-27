@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+
 import sys
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui
 from ui import Ui_monitorWidget
 from epics import PV
 import epics
@@ -10,9 +11,10 @@ m1pospv = 'mobiis:m1'
 m2pospv = 'mobiis:m2'
 cntpv   = 'HFXAFS:scaler1'
 
-class monitorWidget(QtGui.QWidget):
+
+class MonitorWidget(QtGui.QWidget):
     def __init__(self, parent=None):
-        super(monitorWidget, self).__init__(parent) # __init__(parent) for main
+        super(MonitorWidget, self).__init__(parent) # __init__(parent) for main
 
         self.cntName = cntpv
         
@@ -69,8 +71,7 @@ class monitorWidget(QtGui.QWidget):
 # this module run
 if '__main__' == __name__:
     application = QtGui.QApplication(sys.argv)
-    test = monitorWidget()
+    test = MonitorWidget()
     test.show()
-    
     sys.exit(application.exec_())
 

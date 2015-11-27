@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-import sys, time
+
+import sys
 from PyQt4 import QtGui
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from roi_ui import Ui_roiWidget
-from pvHandler import *
 import epics
 import sqlite3
-import scan
 from threadScanData import ThreadScanData
-
 
 e0Name     = 'mobiis:m2'
 BEAM       = 'G:BEAMCURRENT'
 COUNT_NAME = 'HFXAFS:scaler1'
 
 
-class roiWidget(QtGui.QWidget):
+class RoiWidget(QtGui.QWidget):
     def __init__(self, parent = None):
-        super(roiWidget, self).__init__(parent) # __init__(parent) for send signal to main
+        super(RoiWidget, self).__init__(parent) # __init__(parent) for send signal to main
 
         # GUI construction
         self.ui = Ui_roiWidget()
@@ -117,7 +115,8 @@ class roiWidget(QtGui.QWidget):
         con = sqlite3.connect("xrayref.db")
         cursor = con.cursor()
         try:
-            sqlStr = "SELECT element FROM xray_levels WHERE absorption_edge='%s' AND iupac_symbol='K'" %(self.ui.doubleE0.value())
+            sqlStr = "SELECT element FROM xray_levels WHERE absorption_edge='%s' AND iupac_symbol='K'" \
+                     %(self.ui.doubleE0.value())
             cursor.execute(sqlStr)
             elementName = cursor.fetchall()
 
@@ -180,6 +179,6 @@ class roiWidget(QtGui.QWidget):
 # this module run
 if '__main__' == __name__:
     application = QtGui.QApplication(sys.argv)
-    test = roiWidget()
+    test = RoiWidget()
     test.show()
     sys.exit(application.exec_())

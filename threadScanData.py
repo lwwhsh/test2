@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+
 import time
-import numpy as np
 from PyQt4 import QtCore
 import epics
 from pvHandler import MakePointForScan
@@ -9,7 +9,6 @@ from pvHandler import MakePointForScan
 class ThreadScanData(QtCore.QThread, MakePointForScan):
     commSignal = QtCore.pyqtSignal(int)
 
-    ## def __init__(self, send_signal):
     def __init__(self):
         super(ThreadScanData, self).__init__()
 
