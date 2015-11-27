@@ -1,5 +1,4 @@
 #-*- coding: utf-8 -*-
-__author__ = 'root'
 
 import sys, time
 import numpy as np
@@ -18,7 +17,6 @@ def ktoe(k):
     return k*k*XAFS_K2E
 
 
-##class MakePointForScan(QtGui.QWidget):
 class MakePointForScan():
     def __init__(self):
         self.scan_id = None
@@ -49,11 +47,11 @@ class MakePointForScan():
 
             # check k or eV and if eV step
             if i < 3 or (i > 2 and li[4].currentIndex() is 0):
-                # 1st set expose time
+                # 1st set expose time to scaler
                 cmds.append(Set('tp', li[3].value()))
 
                 dd1 = Loop('m2', li[0].value()+self.e0Value,
-                           li[1].value()+self.e0Value, li[2].value(),
+                           li[1].value()+self.e0Value-li[2].value(), li[2].value(),
                            [ Delay(0.01),
                              Set('cnt', 1),
                              Wait('cnt', 0),
@@ -70,12 +68,15 @@ class MakePointForScan():
 
                 # k to eV and add E0 Value
                 ev_arr = [ self.e0Value + ktoe(e) for e in en_arr]
+                # delete last value
+                ev_arr.pop()
 
-                # 1st set expose time
+                # 1st set expose time to scaler
                 cmds.append(Set('tp', li[3].value()))
 
                 for i in ev_arr:
-                    cmds.append(Set('m2', i, completion=True, readback='m2RBV', tolerance=0.0001))
+                    cmds.append(Set('m2', i, completion=True, readback='m2RBV',
+                                    tolerance=0.001))
                     cmds.append(Delay(0.01))
                     cmds.append(Set('cnt', 1))
                     cmds.append(Wait('cnt', 0))

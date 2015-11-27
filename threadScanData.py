@@ -11,13 +11,9 @@ class ThreadScanData(QtCore.QThread, MakePointForScan):
 
     ## def __init__(self, send_signal):
     def __init__(self):
-        ## super(ThreadScanData, self).__init__()
-        super(ThreadScanData, self).__init__() #(parent)  # __init__(parent)가 아니면 메인에서 본 위젯의 시그널을 받을 수 없음.
+        super(ThreadScanData, self).__init__()
 
         MakePointForScan.__init__(self)
-
-        ## self.send_signal = send_signal
-        ## self.scan_handler = None
 
         # 변수 초기화
         self.state = False
@@ -75,5 +71,5 @@ class ThreadScanData(QtCore.QThread, MakePointForScan):
         time.sleep(1.0)
         epics.caput('mobiis:m2.VAL', self.e0, wait=True, timeout=120)
 
-        print self.client.getData(self.scan_id)
+        #print self.client.getData(self.scan_id)
         # self.scan_handler.clear()

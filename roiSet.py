@@ -83,7 +83,6 @@ class roiWidget(QtGui.QWidget):
             self.scan_handle = ThreadScanData()
 
         except Exception as e:
-            #pass
             print e
             QMessageBox.warning(self, "Oops SCAN server",
                                 " Scan server not connected please restart this program ",
@@ -148,7 +147,6 @@ class roiWidget(QtGui.QWidget):
                                       self.reg_settings,
                                       self.ui.selectRegion)
         except Exception as e:
-            #pass
             print e
 
         self.scan_handle.set_conf(e0=self.ui.doubleE0.value())
@@ -159,7 +157,6 @@ class roiWidget(QtGui.QWidget):
         try:
             self.scan_handle.stop()
         except Exception as e:
-            #pass
             print e
 
     def moveE0(self):
@@ -172,7 +169,6 @@ class roiWidget(QtGui.QWidget):
             try:
                 epics.caput(e0Name, self.ui.doubleE0.value(), wait=True)
             except Exception as e:
-                #pass
                 print e
         else:
             pass
@@ -186,5 +182,4 @@ if '__main__' == __name__:
     application = QtGui.QApplication(sys.argv)
     test = roiWidget()
     test.show()
-    
     sys.exit(application.exec_())
