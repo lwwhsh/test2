@@ -59,7 +59,7 @@ class ThreadScanData(QtCore.QThread, MakePointForScan):
                 self.last_log_fetched = self.last_logged
                 self.commSignal.emit(self.client.scanInfo(self.scan_id).percentage())
 
-            QtCore.QThread.msleep(25) # time.sleep(0.01)
+            QtCore.QThread.msleep(50) # time.sleep(0.01)
 
         try:
             self.commSignal.emit(self.client.scanInfo(self.scan_id).percentage())
