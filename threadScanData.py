@@ -73,3 +73,5 @@ class ThreadScanData(QtCore.QThread, MakePointForScan):
 
         #print self.client.getData(self.scan_id)
         # self.scan_handler.clear()
+
+# 우리나라 대한민국
