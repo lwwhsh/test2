@@ -1,6 +1,5 @@
-# -*- conding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import sys, time
-
 from PyQt4 import QtGui
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -9,6 +8,7 @@ from pvHandler import *
 import epics
 import sqlite3
 import scan
+from threadScanData import ThreadScanData
 
 
 e0Name     = 'mobiis:m2'
@@ -17,8 +17,8 @@ COUNT_NAME = 'HFXAFS:scaler1'
 
 
 class roiWidget(QtGui.QWidget):
-    def __init__(self, parent=None):
-        super(roiWidget, self).__init__(parent) # __init__(parent) for main
+    def __init__(self, parent = None):
+        super(roiWidget, self).__init__(parent) # __init__(parent) for send signal to main
 
         # GUI construction
         self.ui = Ui_roiWidget()
@@ -80,15 +80,16 @@ class roiWidget(QtGui.QWidget):
 
         # Try connect to SCAN SERVER!
         try:
-            self.runScan = MakePointForScan(self.ui.progressBar)
-            self.runScan.commSignal.connect(self.showData)
+            self.scan_handle = ThreadScanData()
+
         except Exception as e:
             #pass
-            QMessageBox.warning(self, "Oops SCAN server",
-                                " Scan server not connected please program restart ",
-                                QMessageBox.Ok)
             print e
+            QMessageBox.warning(self, "Oops SCAN server",
+                                " Scan server not connected please restart this program ",
+                                QMessageBox.Ok)
 
+        self.scan_handle.commSignal.connect(self.showData)
 
     def makeElementList(self):
         con = sqlite3.connect("xrayref.db")
@@ -143,24 +144,20 @@ class roiWidget(QtGui.QWidget):
 
     def startScan(self):
         try:
-            # self.runScan = MakePointForScan(self.ui.progressBar)
-
-            # self.runScan.commSignal.connect(self.showData)
-
-            self.runScan.putTable(self.ui.doubleE0,
-                                  self.reg_settings,
-                                  self.ui.selectRegion)
+            self.scan_handle.putTable(self.ui.doubleE0,
+                                      self.reg_settings,
+                                      self.ui.selectRegion)
         except Exception as e:
             #pass
             print e
 
-        self.monThread = threadScanData(self.commSignal)
-        self.monThread.set_conf(self.id, 1.0, self.client, 1.0, self.e0Value)
-        self.monThread.start()
+        self.scan_handle.set_conf(e0=self.ui.doubleE0.value())
+        self.scan_handle.resume()
+        self.scan_handle.start()
 
     def stopScan(self):
         try:
-            self.runScan.monThread.stop()
+            self.scan_handle.stop()
         except Exception as e:
             #pass
             print e

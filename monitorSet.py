@@ -1,4 +1,4 @@
-# -*- conding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import sys
 from PyQt4 import QtGui, QtCore
 from ui import Ui_monitorWidget
