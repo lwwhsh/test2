@@ -166,7 +166,7 @@ class RoiWidget(QtGui.QWidget):
 
         if reply == QtGui.QMessageBox.Yes:
             try:
-                epics.caput(e0Name, self.ui.doubleE0.value(), wait=True)
+                epics.caput(e0Name, self.ui.doubleE0.value(), wait=False)
             except Exception as e:
                 print e
         else:
