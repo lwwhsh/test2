@@ -81,6 +81,11 @@ class MakePointForScan():
                     cmds.append(Wait('cnt', 0))
                     cmds.append(Log(devices=['m2RBV', 'beam', 'io']))
 
+            # count mode set to auto mode and DCM move to e0 angle
+            cmds.append(Set('cont', 1))
+            cmds.append(Set('m2', self.e0Value, completion=True, readback='m2RBV',
+                                    tolerance=0.001))
+
         # TODO: set file name to comment in the scan description.
         self.scan_id = self.client.submit(cmds, 'py')
 

@@ -66,7 +66,8 @@ class ThreadScanData(QtCore.QThread, MakePointForScan):
         except:
             pass
 
-        # stop and return to e0Value.
+        # stop and return to e0Value and scaler set to auto mode.
+        epics.caput('HFXAFS:scaler1.CONT', 1)
         epics.caput('mobiis:m2.STOP', 1.0)
         time.sleep(1.0)
         epics.caput('mobiis:m2.VAL', self.e0Value, wait=True, timeout=120)
