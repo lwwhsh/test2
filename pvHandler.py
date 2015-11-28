@@ -38,6 +38,8 @@ class MakePointForScan():
 
         # TODO: User comment.
         cmds = [ Comment("Set") ]
+        # count mode set to manual
+        cmds.append(Set('cont', 0))
 
         for i in range(self.regionSelectUi.currentIndex()+2):
             li = list(self.region[i])
