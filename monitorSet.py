@@ -74,4 +74,4 @@ if '__main__' == __name__:
     test = MonitorWidget()
     test.show()
     sys.exit(application.exec_())
-
+# 우리나라 대한민국

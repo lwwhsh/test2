@@ -33,3 +33,4 @@ if __name__ == "__main__":
     myapp = MainForm()
     myapp.show()
     sys.exit(app.exec_())
+# 우리나라 대한민국

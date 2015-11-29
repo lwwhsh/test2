@@ -149,8 +149,10 @@ class RoiWidget(QtGui.QWidget):
             print e
 
         self.scan_handle.set_conf(e0=self.ui.doubleE0.value())
-        self.scan_handle.resume()
-        self.scan_handle.start()
+
+        if self.scan_handle.state is False:
+            self.scan_handle.resume()
+            self.scan_handle.start()
 
     def stopScan(self):
         try:
@@ -182,3 +184,4 @@ if '__main__' == __name__:
     test = RoiWidget()
     test.show()
     sys.exit(application.exec_())
+# 우리나라 대한민국

@@ -26,7 +26,8 @@ class MakePointForScan():
                       Loop('m2', 0, 10, 1,
                             [ Set('cnt', 1),
                               Wait('cnt', 0, comparison='='),
-                              Log(devices=['m2RBV', 'beam', 'io']) ],
+                              Log(devices=['m2RBV', 'beam', 'io'])
+                            ],
                       completion=True,
                       readback='m2RBV') ]
         """
@@ -84,12 +85,13 @@ class MakePointForScan():
         # count mode set to auto mode and DCM move to e0 angle
         cmds.append(Set('cont', 1))
         cmds.append(Set('m2', self.e0Value, completion=True, readback='m2RBV',
-                                tolerance=0.001))
+                        tolerance=0.001))
 
         # TODO: set file name to comment in the scan description.
-        self.scan_id = self.client.submit(cmds, 'py')
-
-        print 'SCAN ID : %d' % (self.scan_id)
+        if self.state is False:
+            self.scan_id = self.client.submit(cmds, 'py-START')
+        else:
+            self.client.submit(cmds, 'py-added')
 
     def monitorScans(self):
         self.last_log_fetched = None
@@ -109,3 +111,4 @@ if __name__ == '__main__':
     runScan.putTable()
     # for local test.
     runScan.monitorScans()
+# 우리나라 대한민국
