@@ -16,7 +16,6 @@ class ThreadScanData(QtCore.QThread, MakePointForScan):
 
         # 변수 초기화
         self.state = False
-
         self.infos = None
         self.infosId = None
         self.infosIdLen = None
@@ -57,7 +56,7 @@ class ThreadScanData(QtCore.QThread, MakePointForScan):
         self.infosSts = [ s.state for s in self.infos ] # check Idle/Running/Finished/Abort/Pause..
         self.infosDone = [ s.isDone() for s in self.infos] # set all to TRUE when Abort scan,
 
-        print self.infosId, self.infosIdLen, self.infosSts, self.infosDone
+        # print self.infosId, self.infosIdLen, self.infosSts, self.infosDone
 
     def run(self):
         self.state = True
