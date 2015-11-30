@@ -1,2 +1,2 @@
 # test2
-pycharm to github
+PyScanClient application for BL10C in PAL.
