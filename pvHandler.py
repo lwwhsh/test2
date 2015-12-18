@@ -111,4 +111,5 @@ if __name__ == '__main__':
     runScan.putTable()
     # for local test.
     runScan.monitorScans()
+
 # 우리나라 대한민국
