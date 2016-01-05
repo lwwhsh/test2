@@ -37,7 +37,7 @@ class MakePointForScan():
         self.regionSelectUi = selectRegion
         self.e0Value = self.e0Ui.value()
 
-        # TODO: User comment.
+        # TODO: Add User comments.
         cmds = [ Comment("Set") ]
         # count mode set to manual
         cmds.append(Set('cont', 0))

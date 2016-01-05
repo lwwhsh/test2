@@ -53,8 +53,10 @@ class ThreadScanData(QtCore.QThread, MakePointForScan):
         self.infos = self.client.scanInfos()
         self.infosId = [ s.id for s in self.infos ]
         self.infosIdLen = len(self.infosId)
-        self.infosSts = [ s.state for s in self.infos ] # check Idle/Running/Finished/Abort/Pause..
-        self.infosDone = [ s.isDone() for s in self.infos] # set all to TRUE when Abort scan,
+        # check Idle/Running/Finished/Abort/Pause..
+        self.infosSts = [ s.state for s in self.infos ]
+        # set all to TRUE when Abort scan,
+        self.infosDone = [ s.isDone() for s in self.infos]
 
         # print self.infosId, self.infosIdLen, self.infosSts, self.infosDone
 

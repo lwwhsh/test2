@@ -150,6 +150,7 @@ class RoiWidget(QtGui.QWidget):
 
         self.scan_handle.set_conf(e0=self.ui.doubleE0.value())
 
+        # if is not scanning. start new scan.
         if self.scan_handle.state is False:
             self.scan_handle.resume()
             self.scan_handle.start()
